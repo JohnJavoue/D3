@@ -24,22 +24,31 @@
 </div>
 <script type="text/javascript">
 
+    //format de la zone de collision
     var w = 1280,
         h = 800;
 
+    //"noeud" : ronds à l'écran -1 (pourquoi ?)
+    //range : nombre de cercles ?
+    //radius : rayon des cercles aléatoires
     var nodes = d3.range(200).map(function() { return {radius: Math.random() * 12 + 4}; }),
-        color = d3.scale.category10();
+        //color : couleurs préfédinies
+        color = d3.scale.category20();
 
+    //gravity : "vitesse" de la gravité
+    //force : force de répulsion des cercles par rapport à la souris
     var force = d3.layout.force()
         .gravity(0.05)
         .charge(function(d, i) { return i ? 0 : -2000; })
         .nodes(nodes)
         .size([w, h]);
 
+    // ?
     var root = nodes[0];
     root.radius = 0;
     root.fixed = true;
 
+    //lance la "force" sur les cercles
     force.start();
 
     var svg = d3.select("#body").append("svg:svg")
@@ -49,14 +58,16 @@
     svg.selectAll("circle")
         .data(nodes.slice(1))
         .enter().append("svg:circle")
-        .attr("r", function(d) { return d.radius - 2; })
+        .attr("r", function(d) { return d.radius +5; })
         .style("fill", function(d, i) { return color(i % 3); });
 
-    force.on("tick", function(e) {
+    //quadtree ??
+    force.on("tick", function() {
         var q = d3.geom.quadtree(nodes),
             i = 0,
             n = nodes.length;
 
+        //collide défini plus bas
         while (++i < n) {
             q.visit(collide(nodes[i]));
         }
